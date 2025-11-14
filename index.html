@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سكربتات المكالمات التفاعلية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* CSS Variables for Theming (Vercel Inspired Look) */
+        :root {
+            /* Light Theme */
+            --bg-body: #f7f7f7;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f0f0f0;
+            --text-color: #1f2937; /* Dark Gray */
+            --text-muted: #6b7280; /* Medium Gray */
+            --primary-color: #0070f3; /* Vercel Blue */
+            --accent-color: #10b981; /* Success Green */
+            --danger-color: #ef4444; /* Red */
+            --box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+            --border-color: #e5e7eb;
+            --border-radius: 8px;
+        }
+
+        .dark-mode {
+            /* Dark Theme */
+            --bg-body: #111827; /* Dark Blue Gray */
+            --bg-primary: #1f2937;
+            --bg-secondary: #374151;
+            --text-color: #f3f4f6;
+            --text-muted: #9ca3af;
+            --primary-color: #4da6ff;
+            --accent-color: #66ff99;
+            --danger-color: #ff6666;
+            --box-shadow: 0 4px 6px -1px rgba(255, 255, 255, 0.05), 0 2px 4px -2px rgba(255, 255, 255, 0.03);
+            --border-color: #374151;
+        }
+
+        /* CSS Reset and Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            /* 💡 فرض خط Cairo على كل عنصر */
+            font-family: 'Cairo', sans-serif !important; 
+        }
+
+        body {
+            /* 💡 تصغير حجم الخط العام */
+            font-family: 'Cairo', sans-serif !important;
+            font-size: 0.95em; 
+            background-color: var(--bg-body);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* توحيد خط العناوين والقوائم والنصوص القوية لضمان التناسق */
+        h1, h2, h3, h4, .script-content p, .script-content ul li, .script-content strong {
+            font-family: 'Cairo', sans-serif !important;
+        }
+
+        /* Header Styles */
+        header {
+            background: var(--bg-primary);
+            padding: 15px 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--border-color);
+        }
+
+        header h1 {
+            color: var(--primary-color);
+            font-size: 1.8em;
+        }
+
+        .toggle-btn {
+            background: var(--bg-secondary);
+            color: var(--text-color);
+            border: none;
+            padding: 8px 15px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: background-color 0.3s;
+            border: 1px solid var(--border-color);
+        }
+
+        .toggle-btn:hover {
+            background-color: var(--text-muted);
+            color: var(--bg-primary);
+        }
+        
+        /* Homepage Styles */
+        .script-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .script-card {
+            background: var(--bg-primary);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .script-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary-color);
+        }
+
+        .script-card h2 {
+            font-size: 1.4em;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .script-card p {
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            line-height: 1.5;
+            flex-grow: 1;
+        }
+
+        .card-badge {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 9999px; /* Fully rounded */
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        /* Script Page Layout */
+        .script-layout {
+            display: flex;
+            gap: 20px;
+        }
+
+        .flow-panel {
+            flex: 0 0 320px;
+            background: var(--bg-primary);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+            border: 1px solid var(--border-color);
+            overflow-y: auto; 
+            max-height: calc(100vh - 120px);
+        }
+
+        .flow-title {
+            font-size: 1.5em;
+            color: var(--text-color);
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .step-container {
+            margin-bottom: 5px;
+        }
+
+        .step {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+            border-right: 4px solid transparent;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .step:hover:not(.active) {
+            background-color: var(--border-color);
+        }
+        
+        .step.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--accent-color);
+            box-shadow: 0 2px 5px rgba(0, 112, 243, 0.3);
+        }
+
+        .step.active .step-number {
+             background-color: white;
+             color: var(--primary-color);
+        }
+        
+        .step.completed {
+             border-right: 4px solid var(--accent-color);
+             background-color: var(--bg-secondary);
+             color: var(--text-color);
+             opacity: 0.7;
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 25px;
+            height: 25px;
+            line-height: 25px;
+            text-align: center;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+
+        .sub-options {
+            padding: 5px 0 5px 20px;
+            border-right: 1px solid var(--border-color);
+            margin-right: 10px;
+            margin-top: 5px;
+        }
+
+        .sub-option {
+            padding: 8px 15px;
+            background: transparent;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+            color: var(--text-color);
+            font-weight: 400;
+            border-right: 3px solid transparent;
+            margin-bottom: 3px;
+        }
+        
+        .sub-option:hover:not(.active) {
+             background-color: var(--bg-secondary);
+        }
+
+        .sub-option.active {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            border-right: 3px solid var(--accent-color);
+        }
+        
+        .sub-option.completed {
+             border-right: 3px solid var(--accent-color);
+             background-color: var(--bg-secondary);
+             color: var(--text-color);
+             opacity: 0.7;
+        }
+
+        .script-content-area {
+            flex-grow: 1;
+            background: var(--bg-primary);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            border: 1px solid var(--border-color);
+            min-height: 500px;
+        }
+
+        .back-btn {
+            background-color: var(--text-muted);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+
+        .back-btn:hover {
+            background-color: #5a6268;
+        }
+
+        /* Script Display Styles */
+        .script-header {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .script-title {
+            color: var(--primary-color);
+            font-size: 2em;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .script-badge {
+            background-color: var(--danger-color);
+            color: white;
+            padding: 5px 15px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+        }
+
+        .script-content h3 {
+            color: var(--text-color);
+            margin-top: 25px;
+            margin-bottom: 10px;
+            font-size: 1.4em;
+            font-weight: 600;
+        }
+        
+        .script-content p {
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        
+        /* Highlight Box Styles (Info, Success, Warning, Danger) */
+        .highlight-box {
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            border: 1px solid;
+            line-height: 1.6;
+        }
+
+        .highlight-box p {
+            margin: 5px 0;
+            font-size: 1.05em;
+        }
+
+        .highlight-box p strong {
+            font-weight: 700;
+            color: inherit;
+        }
+        
+        .highlight-box.info {
+            background-color: var(--bg-secondary);
+            border-color: var(--border-color);
+        }
+
+        .highlight-box.success {
+            background-color: #d1fae5; /* Light Green */
+            border-color: #10b981;
+            color: #065f46;
+        }
+
+        .dark-mode .highlight-box.success {
+            background-color: #10b98120;
+            border-color: #10b981;
+            color: #66ff99;
+        }
+        
+        .highlight-box.warning {
+            background-color: #fef3c7; /* Light Yellow */
+            border-color: #f59e0b;
+            color: #92400e;
+        }
+
+        .dark-mode .highlight-box.warning {
+            background-color: #f59e0b20;
+            border-color: #f59e0b;
+            color: #fcd34d;
+        }
+
+        .highlight-box.danger {
+            background-color: #fee2e2; /* Light Red */
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+        
+        .dark-mode .highlight-box.danger {
+            background-color: #ef444420;
+            border-color: #ef4444;
+            color: #ff6666;
+        }
+
+        /* List Styling */
+        .benefit-list {
+            list-style: none;
+            padding-right: 0;
+            margin-top: 10px;
+        }
+
+        .benefit-list li {
+            position: relative;
+            padding-right: 25px;
+            margin-bottom: 8px;
+            line-height: 1.6;
+            font-size: 1em;
+            color: var(--text-color);
+        }
+
+        .benefit-list li:before {
+            content: '•'; /* استخدام نقطة بدلاً من إيموجي */
+            position: absolute;
+            right: 0;
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        /* Copy Button Styles */
+        .copy-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .copy-btn span:first-child {
+            /* نص الزر */
+        }
+        .copy-btn span:last-child {
+            font-size: 1.2em;
+        }
+
+        .copy-btn:hover {
+            background-color: #0056b3;
+        }
+        
+        /* Next Step Button Styles */
+        .next-step-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            border: none;
+            border-radius: var(--border-radius);
+            background-color: var(--accent-color);
+            color: white;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .next-step-btn:hover {
+            background-color: #0d995c;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Utility for mobile responsiveness (optional but good practice) */
+        @media (max-width: 900px) {
+            .script-layout {
+                flex-direction: column;
+            }
+            
+            .flow-panel {
+                position: static;
+                max-height: 400px;
+                flex: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>منصة سكربتات جو أكاديمي</h1>
+            <button id="themeToggle" class="toggle-btn" onclick="toggleTheme()">
+                <span id="themeToggleIcon">🌙</span>
+            </button>
+        </header>
+
+        <div id="homePage">
+            <div class="script-options">
+                
+                <div class="script-card" onclick="loadScript('outbound_2008_2009')">
+                    <h2>سكربت التوجيهي (2008-2009)</h2>
+                    <p>مكالمات الخطة المدرسية، دورات الفصول، والرد على أسئلة الحجز والأسعار.</p>
+                    <div class="card-badge" style="background-color: var(--danger-color);">الأهمية القصوى</div>
+                </div>
+
+                <div class="script-card" onclick="loadScript('universities')">
+                    <h2>سكربت الجامعات</h2>
+                    <p>التحقق من توفر المواد، عروض الكورسات الجامعية، وحلول مشاكل الدفع.</p>
+                    <div class="card-badge">القبول والتخصصات</div>
+                </div>
+
+                <div class="script-card" style="opacity: 0.6; cursor: default; border-color: #6b7280;">
+                    <h2>سكربت (قيد التطوير)</h2>
+                    <p>هنا ستظهر سكربتات أخرى مثل التسويق، الشكاوى، أو الدعم الفني.</p>
+                    <div class="card-badge" style="background-color: #6b7280;">قريباً</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="scriptPage" class="hidden">
+            <button class="back-btn" onclick="goHome()">العودة للصفحة الرئيسية</button>
+            <div class="script-layout">
+                <div id="flowPanel" class="flow-panel">
+                    </div>
+                
+                <div id="scriptDisplay" class="script-content-area">
+                    <p style="text-align:center; padding: 50px; color: var(--text-muted);">الرجاء اختيار خطوة من اللوحة الجانبية لبدء المكالمة.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>
