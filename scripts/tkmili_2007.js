@@ -69,7 +69,7 @@ export const scripts = {
                 <p><strong>الموظف:</strong> أكيد ولا يهمك، ممكن بالبداية أعرف اسمك وأي جيل حضرتك؟</p>
             </div>
             <div class="dialog-box client">
-                <p><strong>العميل:</strong> تكميلي 2007 (أو تكميلي 2008).</p>
+                <p><strong>العميل:</strong> تكميلي 2007.</p>
             </div>
             <p class="next-step-indicator">انتقل للخطوة: عرض الباقات.</p>
         `
