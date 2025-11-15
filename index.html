@@ -515,10 +515,15 @@
                     <p>عروض الجمعة البيضاء لطلاب التكميلي 2008 (باقات معدلة).</p>
                     <div class="card-badge" style="background-color: var(--danger-color);">⚠️ الأهمية القصوى</div>
                 </div>
-                <div class="script-card" style="opacity: 0.6; cursor: default; border-color: #6b7280;">
-                    <h2>سكربت (قيد التطوير)</h2>
-                    <p>هنا ستظهر سكربتات أخرى مثل التسويق، الشكاوى، أو الدعم الفني.</p>
-                    <div class="card-badge" style="background-color: #6b7280;">قريباً</div>
+                <div class="script-card" onclick="loadScript('inbound_tawjihi_2008_2009')">
+                    <h2>سكربت مبيعات التوجيهي (2008 - الجمعة البيضاء)</h2>
+                    <p>مكالمات المبيعات الواردة (Inbound) لطلاب التوجيهي 2008 حول عروض الجمعة البيضاء.</p>
+                    <div class="card-badge" style="background-color: var(--primary-color);">🔥 الجمعة البيضاء</div>
+                </div>
+                <div class="script-card" onclick="loadScript('inbound_grades')">
+                    <h2>سكربت الصفوف (1-10) - الجمعة البيضاء</h2>
+                    <p>مكالمات مبيعات الصفوف من الأول إلى العاشر وعروض الجمعة البيضاء.</p>
+                    <div class="card-badge" style="background-color: var(--accent-color);">عروض الصفوف</div>
                 </div>
             </div>
         </div>
@@ -538,6 +543,7 @@
     <script src="tkmili_2007.js">
     </script> <script src="universities.js"></script>
     <script src="tkmili_2008.js"></script>
+    <script src="inbound_tawjihi_2008_2009.js"></script>
     <script type="module" src="main.js"></script>
 </body>
 </html>
